@@ -72,14 +72,22 @@ export class UserService {
     return true;
   }
 
-  // 获取全部用户信息
-  async findAllUser(): Promise<User[]> {
+  // 分页获取用户数据
+  async fetchUsersInfo(page: number, pageSizes: number): Promise<User[]> {
+    return await this.userRepository.find({
+      skip: (page - 1) * pageSizes,
+      take: pageSizes
+    });
+
     // 测试统一的异常处理器
     // throw new HttpException('禁止访问', HttpStatus.FORBIDDEN);
 
     // 测试返回格式化拦截器
     // throw new ApiException('用户不存在', ApiErrorCode.USER_NOTEXIST);
+  }
 
-    return await this.userRepository.find();
+  // 获取用户总数
+  async fetchUsersCount(): Promise<number> {
+    return await this.userRepository.count();
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Req, Res, Session } from '@nestjs/common';
+import { Controller, Get, Post, Body, Req, Res, Session, Query } from '@nestjs/common';
 import * as svgCaptcha  from 'svg-captcha';
 import { UserService } from './user.service';
 import { User } from './user.entity';
@@ -59,9 +59,13 @@ export class UserController {
     }
   }
 
-  // 获取所有用户信息接口
-  @Get('all')
-  findAllUser() {
-    return this.userService.findAllUser()
+  // 分页获取用户信息接口
+  @Get('list')
+  async getUserList(@Query() query: any) {
+    const { page, pageSize } = query;
+    return { 
+      infos: await this.userService.fetchUsersInfo(+page, +pageSize),
+      total: await this.userService.fetchUsersCount() 
+    };
   }
 }
