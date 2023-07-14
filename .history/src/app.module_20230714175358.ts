@@ -5,7 +5,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
-import { UploadController } from './upload/upload.controller';
 
 @Module({
   imports: [
@@ -18,9 +17,12 @@ import { UploadController } from './upload/upload.controller';
       synchronize: false,
     }),
     UserModule,
-    AuthModule
+    AuthModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, "../", "public") // 设置静态资源的根目录（rootPath）为src/public目录下
+    }),
   ],
-  controllers: [AppController, UploadController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
