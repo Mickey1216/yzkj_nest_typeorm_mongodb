@@ -1,6 +1,5 @@
 import { Entity, ObjectIdColumn, ObjectId, Column, BeforeInsert } from 'typeorm';
-import * as crypto from 'crypto';
-import encry from '../utils/crypto';
+import { createHash } from 'crypto';
 
 @Entity()
 export class User {
@@ -22,12 +21,8 @@ export class User {
   @Column()
   authCode: string;
 
-  @Column({ nullable: true })
-  salt: string;
-
   @BeforeInsert()
   brforeInsert() {
-    this.salt = crypto.randomBytes(4).toString('base64');
-    this.password = encry(this.password, this.salt);
+    this.password = createHash('sha256').update(this.password).digest('hex');
   }
 }

@@ -33,20 +33,16 @@ export class UserController {
   async getCode(@Session() session: Record<string, any>, @Res() res: Response) {
     const svgCaptcha = await this.imgAuthCodeService.captche(); // 创建验证码
     session.code = svgCaptcha.text; // 使用session保存验证，用于登陆时验证
-
     res.type('image/svg+xml'); // 指定返回的类型
     res.send(svgCaptcha.data); // 给页面返回一张图片
-
-    console.log(session);
   }
 
   // 当请求该接口时，向邮箱发送验证码
   @Get('emailcode')
   async getEmailCode(@Query() query: any) {
     const { email } = query;
-    const code = this.emailAuthCodeService.send({ email, subject: "欢迎注册" });
-    console.log('code', code);
-
+    const code = await this.emailAuthCodeService.send({ email, subject: "欢迎注册" });
+    
     // 将验证码存储到redis中，方便后续注册时验证
     await this.redisService.set({ key: `email:register:${email}`, value: code });
 
@@ -56,24 +52,28 @@ export class UserController {
   // 注册接口
   @Post('register')
   register(@Body() registerParams: CreateUserDto, @Session() session: Record<string, any>) {
-    console.log('session', session.code);
     const { authCode } = registerParams
 
     if(authCode?.toUpperCase() !== session.code?.toUpperCase()){
       return {
-        code: 400,
+        code: 401,
         msg: "验证码错误"
       }
     }
     
     for(let key in registerParams) {
+      if (key === 'authCode') 
+        continue;
+      
       if(!this.regRules[key].test(registerParams[key])) {
         return {
-          code: 400,
-          msg: "参数错误"
+          code: 402,
+          msg: "其他参数错误"
         }
       }
     }
+
+    return this.userService.register(registerParams);
   }
 
   // 分页获取用户信息接口

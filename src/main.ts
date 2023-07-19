@@ -35,7 +35,11 @@ async function bootstrap() {
   );
 
   // 处理跨域
-  app.enableCors();
+  app.enableCors({
+    origin: 'http://127.0.0.1:5173',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
 
   // 注册统一的异常处理器
   app.useGlobalFilters(new HttpExceptionFilter());

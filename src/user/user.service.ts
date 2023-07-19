@@ -24,7 +24,10 @@ export class UserService {
     try {
       const newUser = await this.userRepository.create(user);
       await this.userRepository.save(newUser);
-      return '注册成功';
+      return {
+        code: 200,
+        message: '注册成功'
+      }
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
